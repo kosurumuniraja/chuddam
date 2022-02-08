@@ -4,9 +4,9 @@ pipeline {
 
 environment {
 
-      sonar_url = 'http://172.31.35.245:9000'
+      sonar_url = 'http://10.1.1.18:9000'
       sonar_username = 'admin'
-      sonar_password = 'admin'
+      sonar_password = 'admin#sonar#123'
       nexus_url = '35.222.210.226:8081'
       artifact_version = '0.0.1'
 
@@ -20,7 +20,7 @@ environment {
 
   tools {
     jdk 'JAVA8'
-    maven 'Maven-3.3.9'
+    maven 'Maven-3.3'
 
   }
 
@@ -101,3 +101,86 @@ environment {
            }
          }
       }
+     stage("Quality Gate") {
+
+         steps {
+              sleep(30)
+              script {
+               def qualitygate = waitForQualityGate()
+               if (qualitygate.status != "OK") {
+               error "Pipeline aborted due to quality gate failure: ${qualitygate.status}"
+               }
+              }
+            }
+          }
+    /* stage ('Publish Artifact') {
+        steps {
+          nexusArtifactUploader artifacts: [[artifactId: '${Service}', classifier: '', file: "target/${Service}-${env.artifact_version}.jar", type: 'jar']], credentialsId: 'ca1d8e48-50b5-46c5-ba0c-7762f4403926', groupId: 'com.sapient.mc', nexusUrl: "${nexus_url}", nexusVersion: 'nexus3', protocol: 'http', repository: 'releases', version: "${artifact_version}"
+        }
+      }
+      stage ('Archive Artifact') {
+        steps {
+          archiveArtifacts '**/*.jar'
+        }
+      }/*
+      stage ('Build Docker Image'){
+        steps {
+          sh '''
+          cd ${WORKSPACE}
+          docker build -t gcr.io/cognitive-genie-63754/COC_${Service} --file=src/main/docker/Dockerfile ${WORKSPACE}
+          '''
+        }
+      }
+      stage ('Publish Docker Image'){
+        steps {
+          sh '''
+          docker push gcr.io/cognitive-genie-63754/COC_${Service}:latest
+          '''
+        }
+      }
+      stage ('CleanUp Docker Image'){
+        steps {
+          sh '''
+          if [ `docker images --format '{{.Repository}}' | grep "mesh_${Service}" | wc -l` -gt 0 ]; then
+echo "INFO => removing local docker images for mesh_${Service}, please wait..."
+docker rmi -f `docker images --format '{{.Repository}} {{.ID}}' | grep "mesh_${Service}" | cut -f2 -d ' ' | uniq`
+fi
+          '''
+        }
+      }
+      stage ('Deploy to kubernetes'){
+        steps{
+          script {
+          if ( env.cluster == 'gke_cognitive-genie-63754_us-central1-a_rapid-istio'){
+          try{
+            sh "kubectl config use-context ${Cluster}"
+       sh "export PATH=/home/jenkins/istio-1.0.5/bin:$PATH"
+     sh "cd ${WORKSPACE}"
+     sh "kubectl delete -f '${WORKSPACE}'/src/main/kube/deployment.yml"
+     sh "kubectl apply -f '${WORKSPACE}'/src/main/kube/service.yml"
+     sh "kubectl apply -f '${WORKSPACE}'/src/main/kube/deployment.yml"
+     sh "kubectl apply -f '${WORKSPACE}'/src/main/networking/config-gateway.yml"
+            }catch (Exception e) {
+         sh "kubectl apply -f '${WORKSPACE}'/src/main/kube/service.yml"
+         sh "kubectl apply -f '${WORKSPACE}'/src/main/kube/deployment.yml"
+         sh "kubectl apply -f '${WORKSPACE}'/src/main/networking/config-gateway.yml"
+     }
+            }
+            else {
+            try{
+               sh "kubectl config use-context ${Cluster}"
+               sh "cd ${WORKSPACE}"
+               sh "kubectl delete -f '${WORKSPACE}'/src/main/kube/deployment.yml"
+        sh "kubectl apply -f  '${WORKSPACE}'/src/main/kube/service.yml"
+        sh "kubectl apply -f '${WORKSPACE}'/src/main/kube/deployment.yml"
+               }catch (Exception e) {
+         sh "kubectl apply -f '${WORKSPACE}'/src/main/kube/service.yml"
+         sh "kubectl apply -f '${WORKSPACE}'/src/main/kube/deployment.yml"
+         sh "kubectl apply -f '${WORKSPACE}'/src/main/networking/config-gateway.yml"
+     }
+          }
+        }
+       }
+      }
+  }
+}
