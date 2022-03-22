@@ -1,0 +1,15 @@
+kubectl create ns name
+kubectl get ns
+kubectl get pods -n dev
+kubectl get svc -n dev
+kubectl get deploy -n dev
+kubectl delete po podName -n dev
+kubectl delete svc serviceName -n dev
+kubectl get all --all-namespaces -o yaml > backup     #To take the yaml backup
+
+
+
+
+To deploy jenkinon kubernetes please follow the below link
+----------------------------------------------------------
+https://phoenixnap.com/kb/how-to-install-jenkins-kubernetes
