@@ -1,3 +1,6 @@
+This ymal file was pending after use this command-kubectl label nodes cluster27-kubemaster vip=maybe --overwrite
+
+
 apiVersion: v1
 kind: Pod
 metadata:
