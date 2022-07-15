@@ -1,0 +1,24 @@
+ apiVersion: apps/v1
+     2  kind: Deployment
+     3  metadata:
+     4    name: nginx-deployment
+     5  spec:
+     6    replicas: 6
+     7    selector:
+     8      matchLabels:
+     9        app: nginx
+    10    template:
+    11      metadata:
+    12        labels:
+    13          app: nginx
+    14      spec:
+    15        tolerations:
+    16        - key: "myKey"
+    17          operator: "Equal"
+    18          value: "myValue"
+    19          effect: "NoSchedule"
+    20        containers:
+    21        - name: web-container
+    22          image: nginx:1.17
+    23          ports:
+    24          - containerPort: 80
