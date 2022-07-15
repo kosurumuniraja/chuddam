@@ -1,0 +1,27 @@
+ ---
+     2  apiVersion: v1
+     3  kind: Pod
+     4  metadata:
+     5    name: pod-1
+     6  spec:
+     7    containers:
+     8    - name: container-1
+     9      image: nginx
+    10  ---
+    11  apiVersion: v1
+    12  kind: Pod
+    13  metadata:
+    14    name: pod-2
+    15  spec:
+    16    containers:
+    17    - name: container-2
+    18      image: nginx
+    19  ---
+    20  apiVersion: v1
+    21  kind: Pod
+    22  metadata:
+    23    name: pod-3
+    24  spec:
+    25    containers:
+    26    - name: container-1
+    27      image: nginx
